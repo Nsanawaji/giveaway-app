@@ -1,19 +1,40 @@
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MaxLength,
+  MinLength,
+  Matches,
+} from 'class-validator';
+
 export class CreateUserDto {
-  @Column()
+  @IsNotEmpty()
+  @IsString()
   username: string;
 
-  @Column()
+  @IsEmail()
+  @IsNotEmpty()
   email: string;
 
-  @Column()
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(8, { message: 'Sorry, you must put in 8 characters' })
+  @MaxLength(16, { message: 'Password should not be more than 16 characters' })
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$/, {
+    message:
+      'Password must contain atleast one Uppercase, one number and one special key',
+  })
   password: string;
 
-  @Column()
+  @IsString()
+  @IsNotEmpty()
   location: string;
 
-  @Column({ default: '' })
+  @IsString()
+  @IsNotEmpty()
   gender: string;
 
-  @Column({ default: '' })
+  @IsString()
+  @IsNotEmpty()
   profilePicture: string;
 }
