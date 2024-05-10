@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { User } from 'src/Entities/user.entity';
 
 @Module({
   imports: [
@@ -11,10 +12,10 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
         type: 'mysql',
         host: configService.getOrThrow('DB_HOST'),
         port: configService.getOrThrow('DB_PORT'),
-        username: configService.getOrThrow('DB_USER,'),
+        username: configService.getOrThrow('DB_USER'),
         password: configService.getOrThrow('DB_PASSWORD'),
         database: configService.getOrThrow('DB_NAME'),
-        entities: [],
+        entities: [User],
         synchronize: true,
       }),
       inject: [ConfigService],
