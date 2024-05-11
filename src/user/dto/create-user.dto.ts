@@ -5,6 +5,7 @@ import {
   MaxLength,
   MinLength,
   Matches,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -35,6 +36,6 @@ export class CreateUserDto {
   gender: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   profilePicture: string;
 }
