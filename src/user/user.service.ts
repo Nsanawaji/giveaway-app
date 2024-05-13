@@ -5,11 +5,12 @@ import { User } from 'src/Entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import path from 'path';
 @Injectable()
 export class UserService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
-  async register(payload: CreateUserDto) {
+  async register(payload: CreateUserDto, profilePicture: Express.Multer.File) {
     payload.email = payload.email.toLowerCase();
     const { email, password, ...rest } = payload;
     const isUser = await this.userRepo.findOneBy({ email });
@@ -19,12 +20,18 @@ export class UserService {
         400,
       );
     }
+
+    // Encrypt password
     const hashpassword = await bcrypt.hash(password, 10);
+
+    //Upload profile picture
+    const profilePicturePath = await this.uploadProfilePicture(profilePicture);
 
     try {
       const user = await this.userRepo.save({
         email,
         password: hashpassword,
+        profilePicture: profilePicturePath,
         ...rest,
       });
       delete user.password;
@@ -36,6 +43,29 @@ export class UserService {
       }
       return error;
     }
+  }
+
+  async uploadProfilePicture(
+    profilePicture: Express.Multer.File,
+  ): Promise<string> {
+    const filename = `${Date.now()}-${profilePicture.originalname}`;
+    const filePath = path.join(
+      __dirname,
+      '..',
+      'uploads',
+      'profilePictures',
+      filename,
+    );
+
+    return new Promise((resolve, reject) => {
+      fs.writeFile(filePath, profilePicture.buffer, (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(filePath);
+        }
+      });
+    });
   }
 
   findAll() {

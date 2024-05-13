@@ -8,7 +8,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() payload: CreateUserDto) {
+  create(@Body() payload: CreateUserDto, @Body() profilePicture: Express.Multer.File) {
     return this.userService.register(payload);
   }
 
