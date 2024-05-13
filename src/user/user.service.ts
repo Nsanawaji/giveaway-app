@@ -1,4 +1,13 @@
-import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  FileTypeValidator,
+  HttpException,
+  Injectable,
+  MaxFileSizeValidator,
+  ParseFilePipe,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from 'src/Entities/user.entity';
@@ -6,6 +15,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import path from 'path';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { editFileName, imageFileFilter } from 'src/files/utils';
 @Injectable()
 export class UserService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
@@ -25,7 +37,7 @@ export class UserService {
     const hashpassword = await bcrypt.hash(password, 10);
 
     //Upload profile picture
-    const profilePicturePath = await this.uploadProfilePicture(profilePicture);
+    const profilePicturePath = this.uploadFile(profilePicture);
 
     try {
       const user = await this.userRepo.save({
@@ -45,27 +57,27 @@ export class UserService {
     }
   }
 
-  async uploadProfilePicture(
-    profilePicture: Express.Multer.File,
-  ): Promise<string> {
-    const filename = `${Date.now()}-${profilePicture.originalname}`;
-    const filePath = path.join(
-      __dirname,
-      '..',
-      'uploads',
-      'profilePictures',
-      filename,
-    );
-
-    return new Promise((resolve, reject) => {
-      fs.writeFile(filePath, profilePicture.buffer, (error) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(filePath);
-        }
-      });
-    });
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './src/freddypix',
+        filename: editFileName,
+      }),
+      fileFilter: imageFileFilter,
+    }),
+  )
+  uploadFile(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 500000 }),
+          new FileTypeValidator({ fileType: 'image/jpeg' }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return file;
   }
 
   findAll() {
