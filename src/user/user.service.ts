@@ -18,7 +18,7 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
-  async register(payload: CreateUserDto, profilePicture: Express.Multer.File) {
+  async register(payload: CreateUserDto) {
     payload.email = payload.email.toLowerCase();
     const { email, password, ...rest } = payload;
     const isUser = await this.userRepo.findOneBy({ email });
