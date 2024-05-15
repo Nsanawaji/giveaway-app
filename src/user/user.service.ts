@@ -14,10 +14,6 @@ import { User } from 'src/Entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import path from 'path';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { editFileName, imageFileFilter } from 'src/files/utils';
 @Injectable()
 export class UserService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
@@ -36,14 +32,10 @@ export class UserService {
     // Encrypt password
     const hashpassword = await bcrypt.hash(password, 10);
 
-    //Upload profile picture
-    const profilePicturePath = this.uploadFile(profilePicture);
-
     try {
       const user = await this.userRepo.save({
         email,
         password: hashpassword,
-        profilePicture: profilePicturePath,
         ...rest,
       });
       delete user.password;
@@ -55,29 +47,6 @@ export class UserService {
       }
       return error;
     }
-  }
-
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './src/freddypix',
-        filename: editFileName,
-      }),
-      fileFilter: imageFileFilter,
-    }),
-  )
-  uploadFile(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 500000 }),
-          new FileTypeValidator({ fileType: 'image/jpeg' }),
-        ],
-      }),
-    )
-    file: Express.Multer.File,
-  ) {
-    return file;
   }
 
   findAll() {
