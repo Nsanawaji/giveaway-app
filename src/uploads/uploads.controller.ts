@@ -19,11 +19,11 @@ import { diskStorage } from 'multer';
 import { editFileName, imageFileFilter } from './utils';
 import * as fs from 'fs';
 
-@Controller('upload')
+@Controller()
 export class UploadsController {
   constructor() {}
 
-  @Post('profilepic')
+  @Post('uploadprofilepic')
   @UseInterceptors(
     FileInterceptor('imgfile', {
       storage: diskStorage({
@@ -47,7 +47,7 @@ export class UploadsController {
     return file.filename;
   }
 
-  @Post('items')
+  @Post('uploaditems')
   @UseInterceptors(
     FilesInterceptor('image', 3, {
       storage: diskStorage({
@@ -72,7 +72,7 @@ export class UploadsController {
 
   @Get(':imgpath')
   seeUploadedFile(@Param('imgpath') image, @Res() res) {
-    return res.sendFile(image, { root: './src/files' });
+    return res.sendFile(image, { root: './src/itempix/' });
   }
 
   @Delete(':imgpath')
@@ -81,7 +81,7 @@ export class UploadsController {
     @Req() requestAnimationFrame,
     @Res() res,
   ): Promise<string> {
-    fs.rm('./src/files/' + image, (err) => {
+    fs.rm('./src/itempix/' + image, (err) => {
       if (err) {
         throw err;
       }
