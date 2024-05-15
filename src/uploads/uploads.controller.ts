@@ -44,7 +44,7 @@ export class UploadsController {
     )
     file: Express.Multer.File,
   ) {
-    console.log(file);
+    return file.filename;
   }
 
   @Post('items')
