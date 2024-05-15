@@ -1,12 +1,8 @@
 import {
   BadRequestException,
-  FileTypeValidator,
   HttpException,
   Injectable,
-  MaxFileSizeValidator,
-  ParseFilePipe,
-  UploadedFile,
-  UseInterceptors,
+ 
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';

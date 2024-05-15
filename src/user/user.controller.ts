@@ -9,7 +9,7 @@ export class UserController {
 
   @Post()
   create(@Body() payload: CreateUserDto, @Body() profilePicture: Express.Multer.File) {
-    return this.userService.register(payload, profilePicture);
+    return this.userService.register(payload);
   }
 
   @Get()
