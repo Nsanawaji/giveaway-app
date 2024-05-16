@@ -1,5 +1,6 @@
-import { Column, Entity } from "typeorm";
-import { Base } from "./base.entity";
+import { Column, Entity, OneToMany } from 'typeorm';
+import { Base } from './base.entity';
+import { Item } from './item.entity';
 
 @Entity()
 export class User extends Base {
@@ -20,4 +21,10 @@ export class User extends Base {
 
   @Column({ default: '' })
   profilePicture: string;
+
+  @OneToMany(() => Item, (item) => item.user, {
+    eager: true,
+    onDelete: 'CASCADE',
+  })
+  item: Item[];
 }
