@@ -13,10 +13,13 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
-import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
+import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
+  constructor(
+    @InjectRepository(User) private userRepo: Repository<User>,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async register(payload: CreateUserDto) {
     payload.email = payload.email.toLowerCase();
@@ -57,7 +60,34 @@ export class UserService {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new HttpException('Invalid email or password', 404);
 
-    
+    const token = await this.jwtService.signAsync({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    res.cookie('userauthenticated', token, {
+      httpOnly: true,
+      maxAge: 1 * 60 * 60 * 1000,
+      sameSite: 'none',
+      secure: true,
+    });
+    delete user.password;
+    return res.send({
+      message: 'User logged in successfully',
+      userToken: token,
+      userDetails: user,
+    });
+  }
+
+  async updateProfile(id: string, payload: CreateUserDto) {
+    const user = await this.userRepo.findOne({ where: { id } });
+
+    if (!user) {
+      throw new HttpException('User not found', 404);
+    }
+    await this.userRepo.update(id, payload);
+    console.log('Successfully updated!');
   }
 
   findAll() {
