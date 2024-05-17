@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { Base } from './base.entity';
 import { Item } from './item.entity';
+import { userRole } from 'src/enum/role.enum';
 
 @Entity()
 export class User extends Base {
@@ -21,6 +22,13 @@ export class User extends Base {
 
   @Column({ default: '' })
   profilePicture: string;
+
+  @Column({
+    type: 'enum',
+    enum: userRole,
+    default: userRole.member,
+  })
+  role: userRole;
 
   @OneToMany(() => Item, (item) => item.user, {
     eager: true,

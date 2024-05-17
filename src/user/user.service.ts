@@ -1,8 +1,9 @@
 import {
   BadRequestException,
+  Body,
   HttpException,
   Injectable,
- 
+  Res,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -10,6 +11,9 @@ import { User } from 'src/Entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { LoginDto } from './dto/login.dto';
+import { Response } from 'express';
+import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 @Injectable()
 export class UserService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
@@ -43,6 +47,17 @@ export class UserService {
       }
       return error;
     }
+  }
+
+  async login(payload: LoginDto, @Res() res: Response) {
+    const { email, password } = payload;
+    const user = await this.userRepo.findOneBy({ email });
+    if (!user) throw new HttpException('Email not found', 404);
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new HttpException('Invalid email or password', 404);
+
+    
   }
 
   findAll() {
