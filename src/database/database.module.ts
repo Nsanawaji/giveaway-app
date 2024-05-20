@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { User } from 'src/Entities/user.entity';
 import { Item } from 'src/Entities/item.entity';
+import { BlockedUser } from 'src/blocked-user/blockedUser.entity';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { Item } from 'src/Entities/item.entity';
         username: configService.getOrThrow('DB_USER'),
         password: configService.getOrThrow('DB_PASSWORD'),
         database: configService.getOrThrow('DB_NAME'),
-        entities: [User, Item],
+        entities: [User, Item, BlockedUser],
         synchronize: true,
       }),
       inject: [ConfigService],

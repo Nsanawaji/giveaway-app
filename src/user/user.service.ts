@@ -14,10 +14,14 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
+import { BlockedUser } from 'src/blocked-user/blockedUser.entity';
+import { BlockedUserException } from 'src/exception/blockedUser.exception';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
+    @InjectRepository(BlockedUser)
+    private blockedUserRepo: Repository<BlockedUser>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -52,11 +56,20 @@ export class UserService {
     }
   }
 
-  async login(payload: LoginDto, @Res() res: Response) {
+  async login(payload: LoginDto, @Res() res: Response): Promise<any> {
     const { email, password } = payload;
+
+    // Check if user is blocked by an admin
+    const isUserBlocked = await this.blockedUserRepo.findOne({
+      where: { userEmail: email },
+    });
+    if (isUserBlocked) throw new BlockedUserException();
+
+    // Check if user is registered in the database
     const user = await this.userRepo.findOneBy({ email });
     if (!user) throw new HttpException('Email not found', 404);
 
+    // Check if inputed password matches encrypted password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new HttpException('Invalid email or password', 404);
 
