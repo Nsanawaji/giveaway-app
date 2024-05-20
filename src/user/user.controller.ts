@@ -21,25 +21,13 @@ export class UserController {
     const token = await this.userService.login(payload, res);
   }
 
-
-  
-  @Get()
-  findAll() {
-    return this.userService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
-  }
-
   @Patch(':id')
   update(@Param('id') id: string, @Body() payload: CreateUserDto) {
     return this.userService.updateProfile(id, payload);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.userService.remove(+id);
+  // }
 }
