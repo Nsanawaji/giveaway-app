@@ -104,7 +104,6 @@ export class UserService {
     console.log('Successfully updated!');
   }
 
-
   async user(headers: any): Promise<any> {
     const authorizationHeader = headers.authorization;
     if (authorizationHeader) {
@@ -126,6 +125,16 @@ export class UserService {
       }
     } else {
       throw new UnauthorizedException('Invalid or missing Bearer Token');
+    }
+  }
+
+  async findEmail(email: string) {
+    const user = await this.userRepo.findOneBy({ email: email });
+
+    if (!user) {
+      throw new UnauthorizedException();
+    } else {
+      return user;
     }
   }
 }

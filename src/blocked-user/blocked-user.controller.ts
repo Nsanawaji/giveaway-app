@@ -11,8 +11,8 @@ export class BlockedUserController {
   constructor(private readonly blockedUserService: BlockedUserService) {}
 
   @Post()
-  @UseGuards(AuthGuard(), RolesGuard)
-  @Roles(userRole.admin)
+  // @UseGuards(AuthGuard(), RolesGuard)
+  // @Roles(userRole.admin)
   blockUser(@Body() payload: BlockedUserDto) {
     return this.blockedUserService.block(payload);
   }
