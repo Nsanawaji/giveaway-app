@@ -90,7 +90,7 @@ export class UserService {
     return res.send({
       message: 'User logged in successfully',
       userToken: token,
-      userDetails: user,
+      userDetails: user.email,
     });
   }
 
