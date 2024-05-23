@@ -155,13 +155,15 @@ export class UserService {
   async unblockUser(id: string) {
     const user = await this.userRepo.findOne({ where: { id: id } });
     if (user && user.isBlock === true) {
-      console.log(user);
       user.isBlock = false;
       const userUnblocked = await this.userRepo.save(user);
       return 'User Successfully unblocked';
-      console.log(user);
     }
     throw new BadRequestException('User was not blocked');
+  }
+
+  async retrievePassword(payload: LoginDto){
+
   }
 
   async getAllusers() {
