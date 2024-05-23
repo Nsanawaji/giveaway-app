@@ -1,8 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
+import { AuthGuard } from '@nestjs/passport';
+import { BlockGuard } from 'src/guard/block.guard';
 
 @Controller('user')
 export class UserController {
@@ -22,8 +34,24 @@ export class UserController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() payload: CreateUserDto) {
-    return this.userService.updateProfile(id, payload);
+  async update(@Param('id') id: string, @Body() payload: CreateUserDto) {
+    return await this.userService.updateProfile(id, payload);
+  }
+  @UseGuards(AuthGuard(), BlockGuard)
+  @Post('block/:id')
+  async blockUser(@Param('id') id: string) {
+    return await this.userService.blockUser(id);
+  }
+
+  @Post('unblock/:id')
+  async unblockUser(@Param('id') id: string) {
+    return await this.userService.unblockUser(id);
+  }
+
+  @UseGuards(AuthGuard(), BlockGuard)
+  @Get()
+  async findAll() {
+    return this.userService.getAllusers();
   }
 
   // @Delete(':id')

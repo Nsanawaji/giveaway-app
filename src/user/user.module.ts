@@ -4,14 +4,14 @@ import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../Entities/user.entity';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { BlockedUser } from 'src/blocked-user/blockedUser.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from 'src/Strategy/jwt.strategy';
+import { BlockGuard } from 'src/guard/block.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, BlockedUser]),
+    TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -29,7 +29,7 @@ import { JwtStrategy } from 'src/Strategy/jwt.strategy';
     }),
   ],
   controllers: [UserController],
-  providers: [UserService, JwtStrategy],
+  providers: [UserService, JwtStrategy, BlockGuard],
   exports: [JwtStrategy, PassportModule, UserService],
 })
 export class UserModule {}

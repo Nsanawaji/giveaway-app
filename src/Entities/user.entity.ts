@@ -30,6 +30,9 @@ export class User extends Base {
   })
   role: userRole;
 
+  @Column({ default: false })
+  isBlock: boolean;
+
   @OneToMany(() => Item, (item) => item.user, {
     eager: true,
     onDelete: 'CASCADE',

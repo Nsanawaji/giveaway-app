@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Body,
+  ConflictException,
   HttpException,
   Injectable,
   Res,
@@ -15,14 +16,12 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { BlockedUser } from 'src/blocked-user/blockedUser.entity';
 import { BlockedUserException } from 'src/exception/blockedUser.exception';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
-    @InjectRepository(BlockedUser)
-    private blockedUserRepo: Repository<BlockedUser>,
+
     private readonly jwtService: JwtService,
   ) {}
 
@@ -59,12 +58,6 @@ export class UserService {
 
   async login(payload: LoginDto, @Res() res: Response): Promise<any> {
     const { email, password } = payload;
-
-    // Check if user is blocked by an admin
-    const isUserBlocked = await this.blockedUserRepo.findOne({
-      where: { userEmail: email },
-    });
-    if (isUserBlocked) throw new BlockedUserException();
 
     // Check if user is registered in the database
     const user = await this.userRepo.findOneBy({ email });
@@ -136,5 +129,42 @@ export class UserService {
     } else {
       return user;
     }
+  }
+
+  async blockUser(id: string) {
+    try {
+      const user = await this.userRepo.findOne({ where: { id: id } });
+      if (user && user.role === 'admin') {
+        user.isBlock = false;
+        throw new BadRequestException('You cannot block an admin');
+      }
+      user.isBlock = true;
+      const isblocked = await this.userRepo.save(user);
+      if (isblocked)
+        throw new ConflictException(
+          'Sorry, this user has already been blocked',
+        );
+      return 'User successfully blocked';
+    } catch (error) {
+      throw new BadRequestException(
+        'Something went wrong while blocking this user',
+      );
+    }
+  }
+
+  async unblockUser(id: string) {
+    const user = await this.userRepo.findOne({ where: { id: id } });
+    if (user && user.isBlock === true) {
+      console.log(user);
+      user.isBlock = false;
+      const userUnblocked = await this.userRepo.save(user);
+      return 'User Successfully unblocked';
+      console.log(user);
+    }
+    throw new BadRequestException('User was not blocked');
+  }
+
+  async getAllusers() {
+    return await this.userRepo.find();
   }
 }
