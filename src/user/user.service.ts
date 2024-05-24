@@ -17,6 +17,7 @@ import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { BlockedUserException } from 'src/exception/blockedUser.exception';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 @Injectable()
 export class UserService {
   constructor(
@@ -162,8 +163,16 @@ export class UserService {
     throw new BadRequestException('User was not blocked');
   }
 
-  async retrievePassword(payload: LoginDto){
+  async retrievePassword(payload: ForgotPasswordDto) {
+    const { email } = payload;
+    const user = await this.userRepo.findOneBy({ email });
+    if (user) {
+      const token = await this.jwtService.signAsync({
+        id: user.id,
+        email: user.email,
+      });
 
+    }
   }
 
   async getAllusers() {
