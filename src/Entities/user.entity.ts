@@ -21,6 +21,9 @@ export class User extends Base {
   gender: string;
 
   @Column({ default: '' })
+  token: string;
+
+  @Column({ default: '' })
   profilePicture: string;
 
   @Column({

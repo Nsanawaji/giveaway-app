@@ -18,12 +18,14 @@ import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { BlockedUserException } from 'src/exception/blockedUser.exception';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { MailerService } from '@nestjs-modules/mailer';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
 
     private readonly jwtService: JwtService,
+    private readonly mailService: MailerService,
   ) {}
 
   async register(payload: CreateUserDto) {
@@ -172,6 +174,18 @@ export class UserService {
         email: user.email,
       });
 
+      await this.userRepo.save({token})
+
+      const message = `Forgot your password? If you didn't forget your password ignore this message!/n Use this link to reset your password: ${token}`;
+
+      await this.mailService.sendMail({
+        from: "",
+        to: email,
+        subject: `Reset Password`,
+        text: message
+      })
+
+      return "Password reset message sent!"
     }
   }
 

@@ -15,6 +15,7 @@ import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { BlockGuard } from 'src/guard/block.guard';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Controller('user')
 export class UserController {
@@ -58,4 +59,10 @@ export class UserController {
   // remove(@Param('id') id: string) {
   //   return this.userService.remove(+id);
   // }
+
+  @Get('forgotpassword')
+  async sendMailer(@Body()payload: ForgotPasswordDto, @Res() response: any) {
+    const mail = await this.userService.retrievePassword(payload);
+
+    }
 }
