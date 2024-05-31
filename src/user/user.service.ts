@@ -19,6 +19,8 @@ import { JwtService } from '@nestjs/jwt';
 import { BlockedUserException } from 'src/exception/blockedUser.exception';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { MailerService } from '@nestjs-modules/mailer';
+import { error } from 'console';
+import { ResetPasswordDto } from './dto/reset-password-dto';
 @Injectable()
 export class UserService {
   constructor(
@@ -165,27 +167,44 @@ export class UserService {
     throw new BadRequestException('User was not blocked');
   }
 
-  async retrievePassword(payload: ForgotPasswordDto) {
+  async forgotPassword(payload: ForgotPasswordDto, @Res() res) {
     const { email } = payload;
     const user = await this.userRepo.findOneBy({ email });
-    if (user) {
-      const token = await this.jwtService.signAsync({
-        id: user.id,
-        email: user.email,
-      });
 
-      await this.userRepo.save({token})
+    if (!user) {
+      throw new HttpException('User not found', 404);
+    }
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    console.log(otp);
 
-      const message = `Forgot your password? If you didn't forget your password ignore this message!/n Use this link to reset your password: ${token}`;
-
+    try {
       await this.mailService.sendMail({
-        from: "",
-        to: email,
-        subject: `Reset Password`,
-        text: message
-      })
+        from: 'mercydanke10@gmail.com',
+        to: `${user.email}`,
+        subject: 'Forgot Password',
+        html: `<p>Did you forget your password? Your One Time Passcode to recover your account is:${otp}</p>`,
+        text: `This is your new password`,
+      });
+      res.send({
+        message: `An otp has been sent to: ${user.email}`,
+      });
+    } catch (error) {
+      return error;
+    }
+    
+  }
 
-      return "Password reset message sent!"
+  async resetPassword(email: string, payload: ResetPasswordDto) {
+    const user = await this.userRepo.findOne({ where: { email: email } });
+    if (!user) {
+      throw new HttpException('User not found', 404);
+    }
+    const { password, confirmPassword } = payload;
+    if (password === confirmPassword) {
+      const hashpassword = await bcrypt.hash(password, 10);
+      user.password = hashpassword;
+      await this.userRepo.save(user);
+      return user;
     }
   }
 

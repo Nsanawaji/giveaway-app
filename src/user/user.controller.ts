@@ -16,6 +16,7 @@ import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { BlockGuard } from 'src/guard/block.guard';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password-dto';
 
 @Controller('user')
 export class UserController {
@@ -60,9 +61,16 @@ export class UserController {
   //   return this.userService.remove(+id);
   // }
 
-  @Get('forgotpassword')
-  async sendMailer(@Body()payload: ForgotPasswordDto, @Res() response: any) {
-    const mail = await this.userService.retrievePassword(payload);
+  @Post('forgotpassword')
+  async sendMailer(@Body() payload: ForgotPasswordDto, @Res() response: any) {
+    const mail = await this.userService.forgotPassword(payload, response);
+  }
 
-    }
+  @Post('resetpassword/:email')
+  async ResetPasswordDto(
+    @Param('email') email: string,
+    @Body() payload: ResetPasswordDto,
+  ) {
+    return await this.userService.resetPassword(email, payload);
+  }
 }
