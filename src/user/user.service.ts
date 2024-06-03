@@ -92,15 +92,15 @@ export class UserService {
     });
   }
 
-  async updateProfile(id: string, payload: CreateUserDto) {
-    const user = await this.userRepo.findOne({ where: { id } });
+  // async updateProfile(id: string, payload: CreateUserDto) {
+  //   const user = await this.userRepo.findOne({ where: { id } });
 
-    if (!user) {
-      throw new HttpException('User not found', 404);
-    }
-    await this.userRepo.update(id, payload);
-    console.log('Successfully updated!');
-  }
+  //   if (!user) {
+  //     throw new HttpException('User not found', 404);
+  //   }
+  //   await this.userRepo.update(id, payload);
+  //   console.log('Successfully updated!');
+  // }
 
   async user(headers: any): Promise<any> {
     const authorizationHeader = headers.authorization;
@@ -191,7 +191,6 @@ export class UserService {
     } catch (error) {
       return error;
     }
-    
   }
 
   async resetPassword(email: string, payload: ResetPasswordDto) {

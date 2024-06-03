@@ -35,10 +35,10 @@ export class UserController {
     const token = await this.userService.login(payload, res);
   }
 
-  @Patch(':id')
-  async update(@Param('id') id: string, @Body() payload: CreateUserDto) {
-    return await this.userService.updateProfile(id, payload);
-  }
+  // @Patch(':id')
+  // async update(@Param('id') id: string, @Body() payload: CreateUserDto) {
+  //   return await this.userService.updateProfile(id, payload);
+  // }
   @UseGuards(AuthGuard(), BlockGuard)
   @Post('block/:id')
   async blockUser(@Param('id') id: string) {

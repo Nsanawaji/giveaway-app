@@ -41,4 +41,7 @@ export class User extends Base {
     onDelete: 'CASCADE',
   })
   item: Item[];
+
+  @Column()
+  otp: number;
 }

@@ -6,6 +6,7 @@ import {
   MinLength,
   Matches,
   IsOptional,
+  IsNumber,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -42,4 +43,8 @@ export class CreateUserDto {
   @IsString()
   @IsOptional()
   token: string;
+
+  @IsNumber()
+  @IsOptional()
+  otp: number;
 }
