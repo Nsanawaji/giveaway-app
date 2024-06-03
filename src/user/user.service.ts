@@ -176,6 +176,8 @@ export class UserService {
     }
     const otp = Math.floor(100000 + Math.random() * 900000);
     console.log(otp);
+    user.otp = otp
+    await this.userRepo.save(user)
 
     try {
       await this.mailService.sendMail({
@@ -191,6 +193,17 @@ export class UserService {
     } catch (error) {
       return error;
     }
+  }
+
+  async checkOtp(otp: number, email: string){
+    const user = await this.userRepo.findOne({ where: { email: email } });
+    if (!user) {
+      throw new HttpException('User not found', 404);
+    }
+    if (otp !== user.otp){
+      throw new error('Wrong otp!')
+    }
+    return "OTP accepted"
   }
 
   async resetPassword(email: string, payload: ResetPasswordDto) {
