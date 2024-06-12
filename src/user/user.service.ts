@@ -21,6 +21,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { error } from 'console';
 import { ResetPasswordDto } from './dto/reset-password-dto';
+import {otpGenerator} from 'otp-generator'
 @Injectable()
 export class UserService {
   constructor(
@@ -174,7 +175,8 @@ export class UserService {
     if (!user) {
       throw new HttpException('User not found', 404);
     }
-    const otp = Math.floor(100000 + Math.random() * 900000);
+    const otp = otpGenerator.generate(6,{specialChars: false, lowerCaseAlphabets: false, upperCaseAlphabets: false})
+    //Math.floor(100000 + Math.random() * 900000);
     console.log(otp);
     user.otp = otp
     await this.userRepo.save(user)
